@@ -1,0 +1,42 @@
+loadrt ds301
+addf ds301.write_all servo-thread
+#*******************
+#  CAN SETUP
+#*******************
+setp ds301.can_command_0_dlc 2
+setp ds301.can_command_0_id 0x000
+setp ds301.can_command_0_data_low 0x8010
+setp ds301.can_command_0_data_high  0x00000000
+
+setp ds301.can_command_1_id 0x610
+setp ds301.can_command_1_data_low 0x00000000
+setp ds301.can_command_1_data_high 0x2f001a00
+
+setp ds301.can_command_2_id 0x610
+setp ds301.can_command_2_data_high 0x23001a01
+setp ds301.can_command_2_data_low  0x08010060
+
+setp ds301.can_command_3_id 0x610
+setp ds301.can_command_3_data_high 0x23001a02
+setp ds301.can_command_3_data_low  0x08020060
+
+setp ds301.can_command_4_id 0x610
+setp ds301.can_command_4_data_high 0x23001a03
+setp ds301.can_command_4_data_low  0x18010026
+
+setp ds301.can_command_5_id 0x610
+setp ds301.can_command_5_data_high 0x23001a04
+setp ds301.can_command_5_data_low  0x18020026
+
+setp ds301.can_command_6_id 0x610
+setp ds301.can_command_6_data_high 0x2f001a00
+setp ds301.can_command_6_data_low  0x04000000
+
+setp ds301.can_command_7_id 0x610
+setp ds301.can_command_7_data_high 0x2B011801
+setp ds301.can_command_7_data_low  0x90100000
+
+
+setp ds301.command_count 8
+
+setp ds301.send 1
