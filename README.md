@@ -9,6 +9,12 @@ halcompile --install ds301.c
 ```
 
 ## Usage
+In the `.hal` file, you have to load the driver:
+```sh
+loadrt ds301
+addf ds301.write_all          servo-thread
+```
+
 After installing the driver, you can configure CAN commands within the `.hal` file. The CAN commands follow this format:
 
 ### Example CAN Command via Terminal
