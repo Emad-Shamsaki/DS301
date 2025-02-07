@@ -68,6 +68,8 @@ void *can_send_task(void *arg)
                 // Format and Send CAN Message
                 snprintf(cmd, sizeof(cmd), "cansend can0 %03X#%s", can_id, data_str);
            int result = system(cmd);
+           usleep(50);
+
                 *(ds301_data->status) = (result == 0);
             }
 
