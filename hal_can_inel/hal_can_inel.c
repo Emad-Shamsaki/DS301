@@ -377,7 +377,7 @@ void hci_read_all(void *_void_hci, long _period)
 }
 
 
-
+/**/
 void hci_write_all(void *_void_hci, long _period) 
 {
 	HCI_t* _pHCI = (HCI_t*)_void_hci;
@@ -433,20 +433,23 @@ void hci_write_all(void *_void_hci, long _period)
 			(*_pHCI->HalPins.pbitDigOutputs[29] ? 0x20 : 0x00) |
 			(*_pHCI->HalPins.pbitDigOutputs[30] ? 0x40 : 0x00) |
 			(*_pHCI->HalPins.pbitDigOutputs[31] ? 0x80 : 0x00) ;
+		
+		// //TODO: ADD DATA FOR ANALOG OUTPUT 1
+		// _frame.data[4] = 0x00;
+		// _frame.data[5] = 0x00;
 
-		// **Analog Output 1 (16-bit, Little-Endian)**
-        __u16 AnalogOutput1 = (__u16)(*_pHCI->HalPins.pfAnOutputs[0] * 32767); // Scale float to 16-bit
-        _frame.data[4] = AnalogOutput1 & 0xFF;  // Low Byte
-        _frame.data[5] = (AnalogOutput1 >> 8) & 0xFF;  // High Byte
-
-        // **Analog Output 2 (16-bit, Little-Endian)**
-        __u16 AnalogOutput2 = (__u16)(*_pHCI->HalPins.pfAnOutputs[1] * 32767);
-        _frame.data[6] = AnalogOutput2 & 0xFF;
-        _frame.data[7] = (AnalogOutput2 >> 8) & 0xFF;
-
-        // Send CAN Frame for rxPDO1
-        write(_pHCI->iCanSocket, &_frame, sizeof(_frame));
-				
+		 // **Analog Output 1 (16-bit, Little-Endian)**
+		 int16_t AnalogOutput1 = (int16_t)(*_pHCI->HalPins.pfAnOutputs[0] * 32767);
+		 _frame.data[4] = AnalogOutput1 & 0xFF;        // Low Byte
+		 _frame.data[5] = (AnalogOutput1 >> 8) & 0xFF; // High Byte
+ 
+		// //TODO: ADD DATA FOR ANALOG OUTPUT 2
+		// _frame.data[6] = 0x00;
+		// _frame.data[7] = 0x00;
+		
+		
+		write(_pHCI->iCanSocket, &_frame, sizeof(_frame));
+		
 		//transmit WAGO I/O rxPDO2
 		_frame.can_id = 0x300 + _pHCI->HalPars.dwWAGO_ID;
 		_frame.len = 8;
