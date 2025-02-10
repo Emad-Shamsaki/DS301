@@ -81,13 +81,16 @@ typedef struct
 	//HAL pins
 	struct {
 		hal_bit_t* pbitDigInputs[DIG_INPUTS]; 	
-		hal_bit_t* pbitDigOutputs[DIG_OUTPUTS]; 	
+		hal_bit_t* pbitDigOutputs[DIG_OUTPUTS]; 
+		hal_bit_t* pEnableFlags	;
+		hal_bit_t* pbitMoveTrigger;
 		
 		hal_u32_t* pdwCounters[COUNTERS];
 
 //		hal_float_t* pfAnInputs[AN_INPUTS];
 		hal_float_t* pfAnOutputs[AN_OUTPUTS];
-		hal_float_t* pfTargetPos[AXIS]	
+		hal_float_t* pfTargetPos[AXIS];
+			
 	} HalPins;	
 	
 } HCI_t;
@@ -521,7 +524,7 @@ void hci_read_all(void *_void_hci, long _period)
 		// TODO : to receive SDO reply from any device
 
 		// txPDO1 - Feedback for Axis 1 & 2
-		if (frame.can_id == 0x181) 
+		if (_frame.can_id == 0x181) 
 		{  
             int32_t posAx1, posAx2;
             memcpy(&posAx1, &frame.data[0], 4);
