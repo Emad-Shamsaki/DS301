@@ -273,6 +273,24 @@ int hci_export(HCI_t* _pHCI)
 		*(_pHCI->HalPins.pdwCounters[_i]) = 0;
 	}	
 
+//------------------------------------------------------------------------------------
+
+	for (_i = 0; _i < AN_OUTPUTS; _i++)
+	{
+		_retval = hal_pin_float_newf(HAL_IN, &(_pHCI->HalPins.pfAnOutputs[_i]), 
+									_pHCI->Config.iCompId, "%s.analog-%02d", 
+									_pHCI->Config.zsHalName, _i);
+		if (_retval < 0) 
+		{
+			HCI_ERR("ERROR: exporting pin '%s.analog-%02d', err: %d\n", 
+					_pHCI->Config.zsHalName, _i, _retval);
+			hal_exit(_pHCI->Config.iCompId);
+			return -1;
+		}
+		*(_pHCI->HalPins.pfAnOutputs[_i]) = 0.0;  // Initialize to zero
+	}   
+	
+
 
 
 	//functions export
@@ -438,14 +456,15 @@ void hci_write_all(void *_void_hci, long _period)
 		// _frame.data[4] = 0x00;
 		// _frame.data[5] = 0x00;
 
-		 // **Analog Output 1 (16-bit, Little-Endian)**
-		 int16_t AnalogOutput1 = (int16_t)(*_pHCI->HalPins.pfAnOutputs[0] * 32767);
-		 _frame.data[4] = AnalogOutput1 & 0xFF;        // Low Byte
-		 _frame.data[5] = (AnalogOutput1 >> 8) & 0xFF; // High Byte
- 
+			int16_t scaled_value = (int16_t)((*_pHCI->HalPins.pfAnOutputs[0]) * (32767.0 / 10.0));
+			_frame.data[4] = scaled_value & 0xFF;        // Low Byte
+			_frame.data[5] = (scaled_value >> 8) & 0xFF; // High Byte
+
+
 		// //TODO: ADD DATA FOR ANALOG OUTPUT 2
-		// _frame.data[6] = 0x00;
-		// _frame.data[7] = 0x00;
+			int16_t scaled_value = (int16_t)((*_pHCI->HalPins.pfAnOutputs[1]) * (32767.0 / 10.0));
+			_frame.data[6] = scaled_value & 0xFF;        // Low Byte
+			_frame.data[7] = (scaled_value >> 8) & 0xFF; // High Byte
 		
 		
 		write(_pHCI->iCanSocket, &_frame, sizeof(_frame));
@@ -455,20 +474,24 @@ void hci_write_all(void *_void_hci, long _period)
 		_frame.len = 8;
 		
 		//TODO: ADD DATA FOR ANALOG OUTPUT 3
-		_frame.data[0] = 0x00;
-		_frame.data[1] = 0x00;
+		int16_t scaled_value = (int16_t)((*_pHCI->HalPins.pfAnOutputs[2]) * (32767.0 / 10.0));
+		_frame.data[0] = scaled_value & 0xFF;        // Low Byte
+		_frame.data[1] = (scaled_value >> 8) & 0xFF; // High Byte
 		
 		//TODO: ADD DATA FOR ANALOG OUTPUT 4
-		_frame.data[2] = 0x00;
-		_frame.data[3] = 0x00;
+		int16_t scaled_value = (int16_t)((*_pHCI->HalPins.pfAnOutputs[3]) * (32767.0 / 10.0));
+		_frame.data[2] = scaled_value & 0xFF;        // Low Byte
+		_frame.data[3] = (scaled_value >> 8) & 0xFF; // High Byte
 		
 		//TODO: ADD DATA FOR ANALOG OUTPUT 5
-		_frame.data[4] = 0x00;
-		_frame.data[5] = 0x00;
+		int16_t scaled_value = (int16_t)((*_pHCI->HalPins.pfAnOutputs[4]) * (32767.0 / 10.0));
+		_frame.data[4] = scaled_value & 0xFF;        // Low Byte
+		_frame.data[5] = (scaled_value >> 8) & 0xFF; // High Byte
 		
 		//TODO: ADD DATA FOR ANALOG OUTPUT 6
-		_frame.data[6] = 0x00;
-		_frame.data[7] = 0x00;
+		int16_t scaled_value = (int16_t)((*_pHCI->HalPins.pfAnOutputs[5]) * (32767.0 / 10.0));
+		_frame.data[6] = scaled_value & 0xFF;        // Low Byte
+		_frame.data[7] = (scaled_value >> 8) & 0xFF; // High Byte
 		
 		write(_pHCI->iCanSocket, &_frame, sizeof(_frame));	
 	}
