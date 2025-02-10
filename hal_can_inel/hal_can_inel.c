@@ -312,7 +312,9 @@ void hci_read_all(void *_void_hci, long _period)
 	
 	_pHCI->HalPars.dwReadExecCount++;
 	
-	while ((_iRead = recv(_pHCI->iCanSocket, &_frame, sizeof(_frame)))) 
+	//while ((_iRead = recv(_pHCI->iCanSocket, &_frame, sizeof(_frame)))) 
+	while ((_iRead = recv(_pHCI->iCanSocket, &_frame, sizeof(_frame), MSG_DONTWAIT)) > 0)
+
 	{	//CAN frame received
 		
 		if (_frame.can_id & CAN_EFF_FLAG == 0)
