@@ -46,7 +46,7 @@ RTAPI_MP_STRING(hci_device, "CAN device to use (can0, can1... default: can0)");
 //#define AN_INPUTS		(0)
 #define AN_OUTPUTS		(8)
 #define COUNTERS		(2+2)
-
+#define AXIS 2
 
 // HAL pins/parameters and other module data/status
 typedef struct 
@@ -86,7 +86,8 @@ typedef struct
 		hal_u32_t* pdwCounters[COUNTERS];
 
 //		hal_float_t* pfAnInputs[AN_INPUTS];
-		hal_float_t* pfAnOutputs[AN_OUTPUTS];	
+		hal_float_t* pfAnOutputs[AN_OUTPUTS];
+		hal_float_t* pfTargetPos[AXIS]	
 	} HalPins;	
 	
 } HCI_t;
