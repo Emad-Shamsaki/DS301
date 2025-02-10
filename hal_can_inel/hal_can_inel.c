@@ -317,7 +317,9 @@ void hci_read_all(void *_void_hci, long _period)
 
 	{	//CAN frame received
 		
-		if (_frame.can_id & CAN_EFF_FLAG == 0)
+		//if (_frame.can_id & CAN_EFF_FLAG == 0)
+		if ((_frame.can_id & CAN_EFF_FLAG) == 0)
+
 		{	//standard (not extended) ID frame
 			_can_id = _frame.can_id & CAN_SFF_MASK;
 			
