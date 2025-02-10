@@ -338,23 +338,24 @@ void hci_read_all(void *_void_hci, long _period)
 				*_pHCI->HalPins.pdwCounters[1] = _Counter;				
 				
 				//to digital inputs hal pins
-				*_pHCI->HalPins.pbitDigInputs[0]  = _frame.data[6] & 0x01;
-				*_pHCI->HalPins.pbitDigInputs[1]  = _frame.data[6] & 0x02;
-				*_pHCI->HalPins.pbitDigInputs[2]  = _frame.data[6] & 0x04;
-				*_pHCI->HalPins.pbitDigInputs[3]  = _frame.data[6] & 0x08;
-				*_pHCI->HalPins.pbitDigInputs[4]  = _frame.data[6] & 0x10;
-				*_pHCI->HalPins.pbitDigInputs[5]  = _frame.data[6] & 0x20;
-				*_pHCI->HalPins.pbitDigInputs[6]  = _frame.data[6] & 0x40;
-				*_pHCI->HalPins.pbitDigInputs[7]  = _frame.data[6] & 0x80;
-				
-				*_pHCI->HalPins.pbitDigInputs[8]  = _frame.data[7] & 0x01;
-				*_pHCI->HalPins.pbitDigInputs[9]  = _frame.data[7] & 0x02;
-				*_pHCI->HalPins.pbitDigInputs[10] = _frame.data[7] & 0x04;
-				*_pHCI->HalPins.pbitDigInputs[11] = _frame.data[7] & 0x08;
-				*_pHCI->HalPins.pbitDigInputs[12] = _frame.data[7] & 0x10;
-				*_pHCI->HalPins.pbitDigInputs[13] = _frame.data[7] & 0x20;
-				*_pHCI->HalPins.pbitDigInputs[14] = _frame.data[7] & 0x40;
-				*_pHCI->HalPins.pbitDigInputs[15] = _frame.data[7] & 0x80;
+				*_pHCI->HalPins.pbitDigInputs[0] = (_frame.data[6] & 0x01) ? 1 : 0;
+				*_pHCI->HalPins.pbitDigInputs[1] = (_frame.data[6] & 0x02) ? 1 : 0;
+				*_pHCI->HalPins.pbitDigInputs[2] = (_frame.data[6] & 0x04) ? 1 : 0;
+				*_pHCI->HalPins.pbitDigInputs[3] = (_frame.data[6] & 0x08) ? 1 : 0;
+				*_pHCI->HalPins.pbitDigInputs[4] = (_frame.data[6] & 0x10) ? 1 : 0;
+				*_pHCI->HalPins.pbitDigInputs[5] = (_frame.data[6] & 0x20) ? 1 : 0;
+				*_pHCI->HalPins.pbitDigInputs[6] = (_frame.data[6] & 0x40) ? 1 : 0;
+				*_pHCI->HalPins.pbitDigInputs[7] = (_frame.data[6] & 0x80) ? 1 : 0;
+
+				*_pHCI->HalPins.pbitDigInputs[8]  = (_frame.data[7] & 0x01) ? 1 : 0;
+				*_pHCI->HalPins.pbitDigInputs[9]  = (_frame.data[7] & 0x02) ? 1 : 0;
+				*_pHCI->HalPins.pbitDigInputs[10] = (_frame.data[7] & 0x04) ? 1 : 0;
+				*_pHCI->HalPins.pbitDigInputs[11] = (_frame.data[7] & 0x08) ? 1 : 0;
+				*_pHCI->HalPins.pbitDigInputs[12] = (_frame.data[7] & 0x10) ? 1 : 0;
+				*_pHCI->HalPins.pbitDigInputs[13] = (_frame.data[7] & 0x20) ? 1 : 0;
+				*_pHCI->HalPins.pbitDigInputs[14] = (_frame.data[7] & 0x40) ? 1 : 0;
+				*_pHCI->HalPins.pbitDigInputs[15] = (_frame.data[7] & 0x80) ? 1 : 0;
+
 				
 			}
 			else if ((_can_id == (0x280 + _pHCI->HalPars.dwWAGO_ID)) && (_frame.len == 6))
