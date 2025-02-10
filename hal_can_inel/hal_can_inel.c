@@ -69,6 +69,13 @@ typedef struct
 		
 		hal_u32_t	dwIO_UpdatePrescaler;
 		hal_u32_t	dwWAGO_ID;
+
+		// New parameters
+    hal_float_t	DacScales[AN_OUTPUTS];  
+    hal_float_t	AdcScales[AN_OUTPUTS];  
+    hal_bit_t	IOexpInputFiltEn[DIG_INPUTS]; 
+    hal_bit_t	IOexpInputsInv[DIG_INPUTS]; 
+    hal_bit_t	IOexpOutputsInv[DIG_OUTPUTS]; 
 	} HalPars;
 	
 	//HAL pins
@@ -191,9 +198,7 @@ int hci_export(HCI_t* _pHCI)
 	int _i;
 	int _retval;
 	char _name[HAL_NAME_LEN + 1];
-
-	//hal pins and parameters export
-
+	
 	_retval = hal_param_u32_newf(HAL_RO, &(_pHCI->HalPars.dwHalCanInelVer), _pHCI->Config.iCompId, "%s.version", _pHCI->Config.zsHalName);
     if (_retval < 0) {
         HCI_ERR("ERROR: exporting parameter '%s.version', err: %d\n", _pHCI->Config.zsHalName, _retval);
@@ -278,11 +283,11 @@ int hci_export(HCI_t* _pHCI)
 	for (_i = 0; _i < AN_OUTPUTS; _i++)
 	{
 		_retval = hal_pin_float_newf(HAL_IN, &(_pHCI->HalPins.pfAnOutputs[_i]), 
-									_pHCI->Config.iCompId, "%s.analog-%02d", 
+									_pHCI->Config.iCompId, "%s.aout-%02d", 
 									_pHCI->Config.zsHalName, _i);
 		if (_retval < 0) 
 		{
-			HCI_ERR("ERROR: exporting pin '%s.analog-%02d', err: %d\n", 
+			HCI_ERR("ERROR: exporting pin '%s.aout-%02d', err: %d\n", 
 					_pHCI->Config.zsHalName, _i, _retval);
 			hal_exit(_pHCI->Config.iCompId);
 			return -1;
@@ -290,6 +295,57 @@ int hci_export(HCI_t* _pHCI)
 		*(_pHCI->HalPins.pfAnOutputs[_i]) = 0.0;  // Initialize to zero
 	}   
 	
+
+//----------------------------------------------------------------------------------------
+	for (int i = 0; i < AN_OUTPUTS; i++) 
+	{
+		_retval = hal_param_float_newf(HAL_RW, &(Global.pHCI->HalPars.DacScales[i]),
+									Global.comp_id, "%s.dac-scale-%02d", 
+									Global.pHCI->Config.zsHalName, i);
+		if (_retval < 0) 
+		{
+			HCI_ERR("ERROR: exporting parameter '%s.dac-scale-%02d', err: %d\n", 
+					Global.pHCI->Config.zsHalName, i, _retval);
+			return -1;
+		}
+		Global.pHCI->HalPars.DacScales[i] = 1.0;  // Default scaling
+
+		_retval = hal_param_float_newf(HAL_RW, &(Global.pHCI->HalPars.AdcScales[i]),
+									Global.comp_id, "%s.adc-scale-%02d", 
+									Global.pHCI->Config.zsHalName, i);
+		if (_retval < 0) 
+		{
+			HCI_ERR("ERROR: exporting parameter '%s.adc-scale-%02d', err: %d\n", 
+					Global.pHCI->Config.zsHalName, i, _retval);
+			return -1;
+		}
+		Global.pHCI->HalPars.AdcScales[i] = 1.0;  // Default scaling
+	}
+
+	// for (int i = 0; i < DIG_INPUTS; i++) 
+	// {
+	//     _retval = hal_param_bit_newf(HAL_RW, &(Global.pHCI->HalPars.IOexpInputFiltEn[i]),
+	//                                  Global.comp_id, "%s.ioexp-input-filt-%02d", 
+	//                                  Global.pHCI->Config.zsHalName, i);
+	//     if (_retval < 0) 
+	//     {
+	//         HCI_ERR("ERROR: exporting parameter '%s.ioexp-input-filt-%02d', err: %d\n", 
+	//                 Global.pHCI->Config.zsHalName, i, _retval);
+	//         return -1;
+	//     }
+	//     Global.pHCI->HalPars.IOexpInputFiltEn[i] = 1;  // Default: filtering enabled
+
+	//     _retval = hal_param_bit_newf(HAL_RW, &(Global.pHCI->HalPars.IOexpInputsInv[i]),
+	//                                  Global.comp_id, "%s.ioexp-input-inv-%02d", 
+	//                                  Global.pHCI->Config.zsHalName, i);
+	//     if (_retval < 0) 
+	//     {
+	//         HCI_ERR("ERROR: exporting parameter '%s.ioexp-input-inv-%02d', err: %d\n", 
+	//                 Global.pHCI->Config.zsHalName, i, _retval);
+	//         return -1;
+	//     }
+	//     Global.pHCI->HalPars.IOexpInputsInv[i] = 0;  // Default: no inversion
+	// }
 
 
 
@@ -315,6 +371,7 @@ int hci_export(HCI_t* _pHCI)
  
 	return 0;
 }
+
 
 /***********************************************************************
 *                       REALTIME FUNCTIONS                             *
