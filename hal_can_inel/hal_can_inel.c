@@ -462,7 +462,7 @@ void hci_write_all(void *_void_hci, long _period)
 
 
 		// //TODO: ADD DATA FOR ANALOG OUTPUT 2
-			int16_t scaled_value = (int16_t)((*_pHCI->HalPins.pfAnOutputs[1]) * (32767.0 / 10.0));
+			 scaled_value = (int16_t)((*_pHCI->HalPins.pfAnOutputs[1]) * (32767.0 / 10.0));
 			_frame.data[6] = scaled_value & 0xFF;        // Low Byte
 			_frame.data[7] = (scaled_value >> 8) & 0xFF; // High Byte
 		
@@ -474,22 +474,22 @@ void hci_write_all(void *_void_hci, long _period)
 		_frame.len = 8;
 		
 		//TODO: ADD DATA FOR ANALOG OUTPUT 3
-		int16_t scaled_value = (int16_t)((*_pHCI->HalPins.pfAnOutputs[2]) * (32767.0 / 10.0));
+		 scaled_value = (int16_t)((*_pHCI->HalPins.pfAnOutputs[2]) * (32767.0 / 10.0));
 		_frame.data[0] = scaled_value & 0xFF;        // Low Byte
 		_frame.data[1] = (scaled_value >> 8) & 0xFF; // High Byte
 		
 		//TODO: ADD DATA FOR ANALOG OUTPUT 4
-		int16_t scaled_value = (int16_t)((*_pHCI->HalPins.pfAnOutputs[3]) * (32767.0 / 10.0));
+		 scaled_value = (int16_t)((*_pHCI->HalPins.pfAnOutputs[3]) * (32767.0 / 10.0));
 		_frame.data[2] = scaled_value & 0xFF;        // Low Byte
 		_frame.data[3] = (scaled_value >> 8) & 0xFF; // High Byte
 		
 		//TODO: ADD DATA FOR ANALOG OUTPUT 5
-		int16_t scaled_value = (int16_t)((*_pHCI->HalPins.pfAnOutputs[4]) * (32767.0 / 10.0));
+		 scaled_value = (int16_t)((*_pHCI->HalPins.pfAnOutputs[4]) * (32767.0 / 10.0));
 		_frame.data[4] = scaled_value & 0xFF;        // Low Byte
 		_frame.data[5] = (scaled_value >> 8) & 0xFF; // High Byte
 		
 		//TODO: ADD DATA FOR ANALOG OUTPUT 6
-		int16_t scaled_value = (int16_t)((*_pHCI->HalPins.pfAnOutputs[5]) * (32767.0 / 10.0));
+		 scaled_value = (int16_t)((*_pHCI->HalPins.pfAnOutputs[5]) * (32767.0 / 10.0));
 		_frame.data[6] = scaled_value & 0xFF;        // Low Byte
 		_frame.data[7] = (scaled_value >> 8) & 0xFF; // High Byte
 		
