@@ -323,7 +323,7 @@ void hci_read_all(void *_void_hci, long _period)
 		{	//standard (not extended) ID frame
 			_can_id = _frame.can_id & CAN_SFF_MASK;
 			
-			if ((_can_id == (0x180 + _pHCI->HalPars.dwWAGO_ID)) && (_frame.len == 8))
+			if ((_can_id == (0x190 /*+ _pHCI->HalPars.dwWAGO_ID*/)) && (_frame.len == 8))
 			{	//received WAGO I/O txPDO1
 			
 				//to counters hal pins
