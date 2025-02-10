@@ -110,7 +110,8 @@ static void hci_read_all(void* _void_hci, long _period);
 static void hci_write_all(void* _void_hci, long _period);
 int hci_export(HCI_t* _pHCI);
 
-
+void send_rxPDO1(HCI_t* _pHCI, int32_t posAx1, int32_t posAx2);
+void send_rxPDO3(HCI_t* _pHCI, int32_t posAx5, uint8_t enableFlags);
 /***********************************************************************
 *                       INIT AND EXIT CODE                             *
 ************************************************************************/
@@ -192,6 +193,28 @@ void rtapi_app_exit(void)
 /***********************************************************************
 *                   LOCAL FUNCTION DEFINITIONS                         *
 ************************************************************************/
+void send_rxPDO1(HCI_t* _pHCI, int32_t posAx1, int32_t posAx2) {
+    struct can_frame frame;
+    frame.can_id = 0x201;  // rxPDO1 ID
+    frame.len = 8;
+
+    memcpy(&frame.data[0], &posAx1, 4);  // Set Axis 1 position
+    memcpy(&frame.data[4], &posAx2, 4);  // Set Axis 2 position
+
+    write(_pHCI->iCanSocket, &frame, sizeof(frame));
+}
+
+void send_rxPDO3(HCI_t* _pHCI, int32_t posAx5, uint8_t enableFlags) {
+    struct can_frame frame;
+    frame.can_id = 0x203;  // rxPDO3 ID
+    frame.len = 8;
+
+    memset(frame.data, 0, 8);
+    frame.data[4] = enableFlags;  // Enable axes
+
+    write(_pHCI->iCanSocket, &frame, sizeof(frame));
+}
+
 
 int hci_export(HCI_t* _pHCI)
 {
@@ -297,30 +320,30 @@ int hci_export(HCI_t* _pHCI)
 	
 
 //----------------------------------------------------------------------------------------
-	for (int i = 0; i < AN_OUTPUTS; i++) 
-	{
-		_retval = hal_param_float_newf(HAL_RW, &(Global.pHCI->HalPars.DacScales[i]),
-									Global.comp_id, "%s.dac-scale-%02d", 
-									Global.pHCI->Config.zsHalName, i);
-		if (_retval < 0) 
-		{
-			HCI_ERR("ERROR: exporting parameter '%s.dac-scale-%02d', err: %d\n", 
-					Global.pHCI->Config.zsHalName, i, _retval);
-			return -1;
-		}
-		Global.pHCI->HalPars.DacScales[i] = 1.0;  // Default scaling
+	// for (int i = 0; i < AN_OUTPUTS; i++) 
+	// {
+	// 	_retval = hal_param_float_newf(HAL_RW, &(Global.pHCI->HalPars.DacScales[i]),
+	// 								Global.comp_id, "%s.dac-scale-%02d", 
+	// 								Global.pHCI->Config.zsHalName, i);
+	// 	if (_retval < 0) 
+	// 	{
+	// 		HCI_ERR("ERROR: exporting parameter '%s.dac-scale-%02d', err: %d\n", 
+	// 				Global.pHCI->Config.zsHalName, i, _retval);
+	// 		return -1;
+	// 	}
+	// 	Global.pHCI->HalPars.DacScales[i] = 1.0;  // Default scaling
 
-		_retval = hal_param_float_newf(HAL_RW, &(Global.pHCI->HalPars.AdcScales[i]),
-									Global.comp_id, "%s.adc-scale-%02d", 
-									Global.pHCI->Config.zsHalName, i);
-		if (_retval < 0) 
-		{
-			HCI_ERR("ERROR: exporting parameter '%s.adc-scale-%02d', err: %d\n", 
-					Global.pHCI->Config.zsHalName, i, _retval);
-			return -1;
-		}
-		Global.pHCI->HalPars.AdcScales[i] = 1.0;  // Default scaling
-	}
+	// 	_retval = hal_param_float_newf(HAL_RW, &(Global.pHCI->HalPars.AdcScales[i]),
+	// 								Global.comp_id, "%s.adc-scale-%02d", 
+	// 								Global.pHCI->Config.zsHalName, i);
+	// 	if (_retval < 0) 
+	// 	{
+	// 		HCI_ERR("ERROR: exporting parameter '%s.adc-scale-%02d', err: %d\n", 
+	// 				Global.pHCI->Config.zsHalName, i, _retval);
+	// 		return -1;
+	// 	}
+	// 	Global.pHCI->HalPars.AdcScales[i] = 1.0;  // Default scaling
+	// }
 
 	// for (int i = 0; i < DIG_INPUTS; i++) 
 	// {
@@ -346,6 +369,52 @@ int hci_export(HCI_t* _pHCI)
 	//     }
 	//     Global.pHCI->HalPars.IOexpInputsInv[i] = 0;  // Default: no inversion
 	// }
+
+//--------------------------------------------------------------------------------
+
+
+	// Create position HAL pins for Axis 1 and Axis 2
+	_retval = hal_pin_float_newf(HAL_IN, &(_pHCI->HalPins.pfTargetPos[0]), 
+								_pHCI->Config.iCompId, "%s.axis-1-pos", 
+								_pHCI->Config.zsHalName);
+	if (_retval < 0) {
+		HCI_ERR("ERROR: exporting pin '%s.axis-1-pos', err: %d\n", 
+				_pHCI->Config.zsHalName, _retval);
+		return -1;
+	}
+	*_pHCI->HalPins.pfTargetPos[0] = 0.0;
+
+	_retval = hal_pin_float_newf(HAL_IN, &(_pHCI->HalPins.pfTargetPos[1]), 
+								_pHCI->Config.iCompId, "%s.axis-2-pos", 
+								_pHCI->Config.zsHalName);
+	if (_retval < 0) {
+		HCI_ERR("ERROR: exporting pin '%s.axis-2-pos', err: %d\n", 
+				_pHCI->Config.zsHalName, _retval);
+		return -1;
+	}
+	*_pHCI->HalPins.pfTargetPos[1] = 0.0;
+
+	// Enable Axes Command Pin
+	_retval = hal_pin_u32_newf(HAL_IN, &(_pHCI->HalPins.pEnableFlags), 
+							_pHCI->Config.iCompId, "%s.enable-flags", 
+							_pHCI->Config.zsHalName);
+	if (_retval < 0) {
+		HCI_ERR("ERROR: exporting pin '%s.enable-flags', err: %d\n", 
+				_pHCI->Config.zsHalName, _retval);
+		return -1;
+	}
+	*_pHCI->HalPins.pEnableFlags = 0x03;  // Default: Enable Axis 1 and 2
+
+	// Movement Trigger Pin
+	_retval = hal_pin_bit_newf(HAL_IN, &(_pHCI->HalPins.pbitMoveTrigger), 
+							_pHCI->Config.iCompId, "%s.move-trigger", 
+							_pHCI->Config.zsHalName);
+	if (_retval < 0) {
+		HCI_ERR("ERROR: exporting pin '%s.move-trigger', err: %d\n", 
+				_pHCI->Config.zsHalName, _retval);
+		return -1;
+	}
+	*_pHCI->HalPins.pbitMoveTrigger = 0;
 
 
 
@@ -381,6 +450,7 @@ void hci_read_all(void *_void_hci, long _period)
     HCI_t* _pHCI = (HCI_t*)_void_hci;
     struct can_frame _frame;
     int _iRead;
+	int bytesRead;
     __u32 _can_id;
     __u32 _Counter;
 
@@ -448,6 +518,15 @@ void hci_read_all(void *_void_hci, long _period)
 		// TODO: receive txPDO from SIEB&MEYER spindle drive
 
 		// TODO : to receive SDO reply from any device
+
+		// txPDO1 - Feedback for Axis 1 & 2
+		if (frame.can_id == 0x181) 
+		{  
+            int32_t posAx1, posAx2;
+            memcpy(&posAx1, &frame.data[0], 4);
+            memcpy(&posAx2, &frame.data[4], 4);
+            printf("Feedback: Axis1: %d, Axis2: %d\n", posAx1, posAx2);
+        }
     }
 }
 
@@ -461,6 +540,20 @@ void hci_write_all(void *_void_hci, long _period)
 	_pHCI->HalPars.dwWriteExecCount++;
 	
 	_pHCI->dwIO_UpdatePrescalerCount++;
+	
+	if (*_pHCI->HalPins.pbitMoveTrigger) 
+	{  // Only send when trigger is set
+        *_pHCI->HalPins.pbitMoveTrigger = 0;  // Reset trigger after sending
+
+        int32_t posAx1 = (int32_t) (*_pHCI->HalPins.pfTargetPos[0]);
+        int32_t posAx2 = (int32_t) (*_pHCI->HalPins.pfTargetPos[1]);
+
+        uint8_t enableFlags = (uint8_t) (*_pHCI->HalPins.pEnableFlags);
+
+        send_rxPDO1(_pHCI, posAx1, posAx2);  // Send position command for Axis 1 & 2
+        send_rxPDO3(_pHCI, 0, enableFlags);  // Send enable command
+    }
+	
 	if (_pHCI->dwIO_UpdatePrescalerCount >= _pHCI->HalPars.dwIO_UpdatePrescaler)
 	{
 		_pHCI->dwIO_UpdatePrescalerCount = 0;
