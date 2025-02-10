@@ -302,94 +302,132 @@ int hci_export(HCI_t* _pHCI)
 *                       REALTIME FUNCTIONS                             *
 ************************************************************************/
 
-void hci_read_all(void *_void_hci, long _period) 
-{
-	HCI_t* _pHCI = (HCI_t*)_void_hci;
-	struct can_frame _frame;
-	int _iRead;
-	__u32 _can_id;
-	__u32 _Counter;
+// void hci_read_all(void *_void_hci, long _period) 
+// {
+// 	HCI_t* _pHCI = (HCI_t*)_void_hci;
+// 	struct can_frame _frame;
+// 	int _iRead;
+// 	__u32 _can_id;
+// 	__u32 _Counter;
 	
-	_pHCI->HalPars.dwReadExecCount++;
-	
-	//while ((_iRead = recv(_pHCI->iCanSocket, &_frame, sizeof(_frame)))) 
-	while ((_iRead = recv(_pHCI->iCanSocket, &_frame, sizeof(_frame), MSG_DONTWAIT)) > 0)
+// 	_pHCI->HalPars.dwReadExecCount++;
+// 	_iRead = recv(_pHCI->iCanSocket, &_frame, sizeof(_frame), MSG_DONTWAIT);
+// 	//while ((_iRead = recv(_pHCI->iCanSocket, &_frame, sizeof(_frame)))) 
+// 	while ((_iRead = recv(_pHCI->iCanSocket, &_frame, sizeof(_frame), MSG_DONTWAIT)) > 0)
 
-	{	//CAN frame received
+// 	{	//CAN frame received
 		
-		//if (_frame.can_id & CAN_EFF_FLAG == 0)
-		if ((_frame.can_id & CAN_EFF_FLAG) == 0)
+// 		//if (_frame.can_id & CAN_EFF_FLAG == 0)
+// 		if ((_frame.can_id & CAN_EFF_FLAG) == 0)
 
-		{	//standard (not extended) ID frame
-			_can_id = _frame.can_id & CAN_SFF_MASK;
+// 		{	//standard (not extended) ID frame
+// 			_can_id = _frame.can_id & CAN_SFF_MASK;
 			
-			if ((_can_id == (0x190 /*+ _pHCI->HalPars.dwWAGO_ID*/)) && (_frame.len == 8))
-			{	//received WAGO I/O txPDO1
+// 			if ((_can_id == (0x190 /*+ _pHCI->HalPars.dwWAGO_ID*/)) && (_frame.len == 8))
+// 			{	//received WAGO I/O txPDO1
 			
-				//to counters hal pins
-				_Counter = _frame.data[2];
-				_Counter <<= 8;
-				_Counter += _frame.data[1];
-				*_pHCI->HalPins.pdwCounters[0] = _Counter;
+// 				//to counters hal pins
+// 				_Counter = _frame.data[2];
+// 				_Counter <<= 8;
+// 				_Counter += _frame.data[1];
+// 				*_pHCI->HalPins.pdwCounters[0] = _Counter;
 
-				_Counter = _frame.data[5];
-				_Counter <<= 8;
-				_Counter += _frame.data[4];
-				*_pHCI->HalPins.pdwCounters[1] = _Counter;				
+// 				_Counter = _frame.data[5];
+// 				_Counter <<= 8;
+// 				_Counter += _frame.data[4];
+// 				*_pHCI->HalPins.pdwCounters[1] = _Counter;				
 				
-				//to digital inputs hal pins
-				*_pHCI->HalPins.pbitDigInputs[0] = (_frame.data[6] & 0x01) ? 1 : 0;
-				*_pHCI->HalPins.pbitDigInputs[1] = (_frame.data[6] & 0x02) ? 1 : 0;
-				*_pHCI->HalPins.pbitDigInputs[2] = (_frame.data[6] & 0x04) ? 1 : 0;
-				*_pHCI->HalPins.pbitDigInputs[3] = (_frame.data[6] & 0x08) ? 1 : 0;
-				*_pHCI->HalPins.pbitDigInputs[4] = (_frame.data[6] & 0x10) ? 1 : 0;
-				*_pHCI->HalPins.pbitDigInputs[5] = (_frame.data[6] & 0x20) ? 1 : 0;
-				*_pHCI->HalPins.pbitDigInputs[6] = (_frame.data[6] & 0x40) ? 1 : 0;
-				*_pHCI->HalPins.pbitDigInputs[7] = (_frame.data[6] & 0x80) ? 1 : 0;
+// 				//to digital inputs hal pins
+// 				*_pHCI->HalPins.pbitDigInputs[0] = (_frame.data[6] & 0x01) ? 1 : 0;
+// 				*_pHCI->HalPins.pbitDigInputs[1] = (_frame.data[6] & 0x02) ? 1 : 0;
+// 				*_pHCI->HalPins.pbitDigInputs[2] = (_frame.data[6] & 0x04) ? 1 : 0;
+// 				*_pHCI->HalPins.pbitDigInputs[3] = (_frame.data[6] & 0x08) ? 1 : 0;
+// 				*_pHCI->HalPins.pbitDigInputs[4] = (_frame.data[6] & 0x10) ? 1 : 0;
+// 				*_pHCI->HalPins.pbitDigInputs[5] = (_frame.data[6] & 0x20) ? 1 : 0;
+// 				*_pHCI->HalPins.pbitDigInputs[6] = (_frame.data[6] & 0x40) ? 1 : 0;
+// 				*_pHCI->HalPins.pbitDigInputs[7] = (_frame.data[6] & 0x80) ? 1 : 0;
 
-				*_pHCI->HalPins.pbitDigInputs[8]  = (_frame.data[7] & 0x01) ? 1 : 0;
-				*_pHCI->HalPins.pbitDigInputs[9]  = (_frame.data[7] & 0x02) ? 1 : 0;
-				*_pHCI->HalPins.pbitDigInputs[10] = (_frame.data[7] & 0x04) ? 1 : 0;
-				*_pHCI->HalPins.pbitDigInputs[11] = (_frame.data[7] & 0x08) ? 1 : 0;
-				*_pHCI->HalPins.pbitDigInputs[12] = (_frame.data[7] & 0x10) ? 1 : 0;
-				*_pHCI->HalPins.pbitDigInputs[13] = (_frame.data[7] & 0x20) ? 1 : 0;
-				*_pHCI->HalPins.pbitDigInputs[14] = (_frame.data[7] & 0x40) ? 1 : 0;
-				*_pHCI->HalPins.pbitDigInputs[15] = (_frame.data[7] & 0x80) ? 1 : 0;
+// 				*_pHCI->HalPins.pbitDigInputs[8]  = (_frame.data[7] & 0x01) ? 1 : 0;
+// 				*_pHCI->HalPins.pbitDigInputs[9]  = (_frame.data[7] & 0x02) ? 1 : 0;
+// 				*_pHCI->HalPins.pbitDigInputs[10] = (_frame.data[7] & 0x04) ? 1 : 0;
+// 				*_pHCI->HalPins.pbitDigInputs[11] = (_frame.data[7] & 0x08) ? 1 : 0;
+// 				*_pHCI->HalPins.pbitDigInputs[12] = (_frame.data[7] & 0x10) ? 1 : 0;
+// 				*_pHCI->HalPins.pbitDigInputs[13] = (_frame.data[7] & 0x20) ? 1 : 0;
+// 				*_pHCI->HalPins.pbitDigInputs[14] = (_frame.data[7] & 0x40) ? 1 : 0;
+// 				*_pHCI->HalPins.pbitDigInputs[15] = (_frame.data[7] & 0x80) ? 1 : 0;
 
 				
-			}
-			else if ((_can_id == (0x280 + _pHCI->HalPars.dwWAGO_ID)) && (_frame.len == 6))
-			{	//received WAGO I/O txPDO2
+// 			}
+// 			else if ((_can_id == (0x280 + _pHCI->HalPars.dwWAGO_ID)) && (_frame.len == 6))
+// 			{	//received WAGO I/O txPDO2
 			
-				//to counters hal pins
-				_Counter = _frame.data[2];
-				_Counter <<= 8;
-				_Counter += _frame.data[1];
-				*_pHCI->HalPins.pdwCounters[2] = _Counter;
+// 				//to counters hal pins
+// 				_Counter = _frame.data[2];
+// 				_Counter <<= 8;
+// 				_Counter += _frame.data[1];
+// 				*_pHCI->HalPins.pdwCounters[2] = _Counter;
 
-				_Counter = _frame.data[5];
-				_Counter <<= 8;
-				_Counter += _frame.data[4];
-				*_pHCI->HalPins.pdwCounters[3] = _Counter;	
-			}
-			else if ((_can_id == 0x181) && (_frame.len == 7))
-			{	//received txPDO from can axes 1 (first S2509)
+// 				_Counter = _frame.data[5];
+// 				_Counter <<= 8;
+// 				_Counter += _frame.data[4];
+// 				*_pHCI->HalPins.pdwCounters[3] = _Counter;	
+// 			}
+// 			else if ((_can_id == 0x181) && (_frame.len == 7))
+// 			{	//received txPDO from can axes 1 (first S2509)
 			
-				// ...
+// 				// ...
 			
-			}
-			else if ((_can_id == 0x182) && (_frame.len == 7))
-			{	//received txPDO from can axes 2 (second S2509)
+// 			}
+// 			else if ((_can_id == 0x182) && (_frame.len == 7))
+// 			{	//received txPDO from can axes 2 (second S2509)
 			
-				// ...
-			}
+// 				// ...
+// 			}
 			
-			// TODO: to receive txPDO from SIEB&MEYER spindle drive
+// 			// TODO: to receive txPDO from SIEB&MEYER spindle drive
 			
-			// TODO: to receive SDO reply from any device			
-		}	
-	}
+// 			// TODO: to receive SDO reply from any device			
+// 		}	
+// 	}
+// }
+void hci_read_all(void *_void_hci, long _period) {
+    HCI_t* _pHCI = (HCI_t*)_void_hci;
+    struct can_frame _frame;
+    int _iRead;
+    __u32 _can_id;
+    __u32 _Counter;
+
+    _pHCI->HalPars.dwReadExecCount++;
+
+    while ((_iRead = recv(_pHCI->iCanSocket, &_frame, sizeof(_frame), MSG_DONTWAIT)) > 0) {
+        if ((_frame.can_id & CAN_EFF_FLAG) == 0) {
+            _can_id = _frame.can_id & CAN_SFF_MASK;
+
+            if ((_can_id == 0x190) && (_frame.len == 8)) {
+                printf("Received CAN message 0x190: ");
+                for (int i = 0; i < 8; i++)
+                    printf("%02X ", _frame.data[i]);
+                printf("\n");
+
+                _Counter = _frame.data[1] | (_frame.data[2] << 8);
+                printf("Counter 0: %u\n", _Counter);
+                *_pHCI->HalPins.pdwCounters[0] = _Counter;
+
+                _Counter = _frame.data[4] | (_frame.data[5] << 8);
+                printf("Counter 1: %u\n", _Counter);
+                *_pHCI->HalPins.pdwCounters[1] = _Counter;
+
+                printf("Digital Inputs Byte 6: %02X, Byte 7: %02X\n", _frame.data[6], _frame.data[7]);
+
+                for (int i = 0; i < 8; i++) {
+                    *_pHCI->HalPins.pbitDigInputs[i] = (_frame.data[6] & (1 << i)) ? 1 : 0;
+                    *_pHCI->HalPins.pbitDigInputs[i + 8] = (_frame.data[7] & (1 << i)) ? 1 : 0;
+                }
+            }
+        }
+    }
 }
+
 
 void hci_write_all(void *_void_hci, long _period) 
 {
